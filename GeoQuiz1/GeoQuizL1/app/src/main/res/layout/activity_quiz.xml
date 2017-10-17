@@ -91,19 +91,17 @@ This means, in which direction it's contents should align.
             android:id="@+id/true_button"
             android:layout_weight="1" />
     </LinearLayout>
-    <Button
+    <ImageButton
         android:id="@+id/next_button"
-        android:text="@string/next_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:drawableRight="@drawable/arrow_right"
+        android:src="@drawable/arrow_right"
         android:drawablePadding="6dp"/>
-    <Button
+    <ImageButton
         android:id="@+id/previous_button"
-        android:text="@string/previous"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:drawableRight="@drawable/arrow_left"
+        android:src="@drawable/arrow_left"
         android:drawablePadding="6dp"/>
 
 
