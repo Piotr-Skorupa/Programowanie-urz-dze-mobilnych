@@ -20,13 +20,16 @@ public class QuizActivity extends AppCompatActivity {
     private TextView mQuestionTextView;
 
     private Question[] mQuestionsBank = new Question[]{
-            new Question(R.string.question_stolica_polski, true),
-            new Question(R.string.question_stolica_dolnego_slaska, false),
-            new Question(R.string.question_sniezka, true),
-            new Question(R.string.question_wisla, true)
+            new Question(R.string.question_stolica_polski, true, false),
+            new Question(R.string.question_stolica_dolnego_slaska, false, false),
+            new Question(R.string.question_sniezka, true, false),
+            new Question(R.string.question_wisla, true, false)
     };
 
+
     private int mCurrentIndex = 0;
+    private int mCorrectAnswers = 0;
+    private boolean isEnd = false;
 
     //    Bundles are generally used for passing data between various Android activities.
     //    It depends on you what type of values you want to pass, but bundles can hold all
@@ -54,6 +57,7 @@ public class QuizActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         checkAnswer(true);
+
                     }
                 }
         );
@@ -63,6 +67,7 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 checkAnswer(false);
+
             }
         });
 
@@ -72,6 +77,7 @@ public class QuizActivity extends AppCompatActivity {
             public void onClick(View view) {
                 mCurrentIndex = (mCurrentIndex + 1) % mQuestionsBank.length;
                 updateQuestion();
+                checkFinish();
             }
         });
 
@@ -84,6 +90,7 @@ public class QuizActivity extends AppCompatActivity {
                 }
                 else { mCurrentIndex = (mQuestionsBank.length -1);}
                 updateQuestion();
+                checkFinish();
             }
         });
 
@@ -94,20 +101,64 @@ public class QuizActivity extends AppCompatActivity {
         int question = mQuestionsBank[mCurrentIndex].getTextResId();
         mQuestionTextView.setText(question);
     }
-
+    // sprawdzanie poprawnosci odpowiedzi
     private void checkAnswer(boolean userPressedTrue) {
-        boolean answerIsTrue = mQuestionsBank[mCurrentIndex].isAnswerTrue();
 
-        int toastMessageId = 0;
+        if (mQuestionsBank[mCurrentIndex].isAnswered()==false){
+            boolean answerIsTrue = mQuestionsBank[mCurrentIndex].isAnswerTrue();
 
-        if (userPressedTrue == answerIsTrue) {
-            toastMessageId = R.string.correct_toast;
-        } else {
-            toastMessageId = R.string.incorrect_toast;
+            int toastMessageId = 0;
+
+            if (userPressedTrue == answerIsTrue) {
+                toastMessageId = R.string.correct_toast;
+                mCorrectAnswers += 1;
+            } else {
+                toastMessageId = R.string.incorrect_toast;
+            }
+
+            changeBoolean();
+
+            Toast myToast = Toast.makeText(this, toastMessageId, Toast.LENGTH_SHORT);
+            myToast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 0);
+            myToast.show();
+        }
+        else Toast.makeText(this, "Już odpowiedziałeś na to pytanie", Toast.LENGTH_LONG).show();
+    }
+    // koncowy komunikat wyswietlajacy liczbe punktów
+    private void finalPoints(){
+
+
+        if(isEnd == false){
+
+            String toastMessageId = "Ilość poprawnych odpowiedzi: ";
+            toastMessageId = toastMessageId + mCorrectAnswers;
+
+            Toast myToast = Toast.makeText(this, toastMessageId, Toast.LENGTH_SHORT);
+            myToast.setGravity(Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL, 0, 0);
+            myToast.show();
+            isEnd = true;
         }
 
-        Toast myToast = Toast.makeText(this, toastMessageId, Toast.LENGTH_SHORT);
-        myToast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 0);
-        myToast.show();
     }
+    // ustawianie pytania jako odpowiedzianego
+    private void changeBoolean() {
+
+        mQuestionsBank[mCurrentIndex].setAnswered(true);
+
+    }
+    // funkcja sprawdzajaca czy na wszystkie pytania odpowiedzial user
+    private void checkFinish() {
+        int koniec = 0;
+        for (int i= 0; i< mQuestionsBank.length; i++ ){
+            if (mQuestionsBank[i].isAnswered() == true){
+                koniec++;
+            }
+        }
+        if (koniec == mQuestionsBank.length){
+            finalPoints();
+
+        }
+
+    }
+
 }
