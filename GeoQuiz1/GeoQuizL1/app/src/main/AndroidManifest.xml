@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="pl.wroc.uni.ift.android.quizactivity">
+          package="pl.wroc.uni.ift.android.quizactivity">
 
     <application
         android:allowBackup="true"
@@ -10,15 +10,13 @@
         android:theme="@style/AppTheme">
         <activity android:name=".QuizActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-        </activity><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
-     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
+        </activity>
+        <activity android:name=".CheatActivity">
+        </activity>
     </application>
 
 </manifest>
