@@ -1,6 +1,8 @@
 package pl.wroc.uni.ift.android.quizactivity;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -27,6 +29,9 @@ public class QuizActivity extends AppCompatActivity {
     private ImageButton mPrevButton;
 
     private TextView mQuestionTextView;
+    private TextView mApiLevel;
+    private String mLevelString;
+    private TextView mTokenTextView;
 
     private Button mCheatButton;
 
@@ -39,8 +44,14 @@ public class QuizActivity extends AppCompatActivity {
 
     private int mCurrentIndex = 0;
     private boolean mIsCheater = false;
-    int odpowiedziane = 0;
-    int poprawne = 0;
+    private int odpowiedziane = 0;
+    private int poprawne = 0;
+
+    //tokeny
+    private int tokeny = 3;
+    private String tokenString;
+
+
 
     //    Bundles are generally used for passing data between various Android activities.
     //    It depends on you what type of values you want to pass, but bundles can hold all
@@ -74,10 +85,18 @@ public class QuizActivity extends AppCompatActivity {
             } else {
                 Log.i(TAG, "Question bank array was correctly returned from Bundle");
             }
-            mIsCheater = savedInstanceState.getBoolean("ch", false);
-            odpowiedziane = savedInstanceState.getInt("odp",0);
-            poprawne = savedInstanceState.getInt("pop",0);
+            mIsCheater = savedInstanceState.getBoolean("ch");
+            odpowiedziane = savedInstanceState.getInt("odp");
+            poprawne = savedInstanceState.getInt("pop");
+            tokeny = savedInstanceState.getInt("tokens");
         }
+
+        mApiLevel = (TextView) findViewById(R.id.Level);
+        mLevelString = "API Level: "+ Build.VERSION.SDK_INT;
+        mApiLevel.setText(mLevelString);
+
+        mTokenTextView = (TextView) findViewById(R.id.token_view);
+        updateTokens();
 
         mCheatButton = (Button) findViewById(R.id.button_cheat);
         mCheatButton.setOnClickListener(new View.OnClickListener() {
@@ -86,7 +105,7 @@ public class QuizActivity extends AppCompatActivity {
 
                 boolean currentAnswer = mQuestionsBank[mCurrentIndex].isAnswerTrue();
                 Intent intent = CheatActivity.newIntent(QuizActivity.this, currentAnswer);
-//
+                intent.putExtra("tokens", tokeny);
 //                Intent intent = new Intent(QuizActivity.this, CheatActivity.class);
 //                boolean currentAnswer = mQuestionsBank[mCurrentIndex].isAnswerTrue();
 //                intent.putExtra("answer", currentAnswer);
@@ -160,6 +179,8 @@ public class QuizActivity extends AppCompatActivity {
                 boolean answerWasShown = CheatActivity.wasAnswerShown(data);
                 if (answerWasShown) {
                     mIsCheater = true;
+                    tokeny -=1;
+                    updateTokens();
                     Toast.makeText(this,
                             R.string.message_for_cheaters,
                             Toast.LENGTH_LONG)
@@ -179,6 +200,7 @@ public class QuizActivity extends AppCompatActivity {
         savedInstanceState.putInt("odp", odpowiedziane);
         savedInstanceState.putInt("pop", poprawne);
         savedInstanceState.putBoolean("ch",mIsCheater);
+        savedInstanceState.putInt("tokens", tokeny);
         // because Question is implementing Parcelable interface
         // we are able to store array in Bundle
         savedInstanceState.putParcelableArray(KEY_QUESTIONS, mQuestionsBank);
@@ -210,5 +232,14 @@ public class QuizActivity extends AppCompatActivity {
         }
         odpowiedziane++;
         Toast.makeText(this, toastMessageId, Toast.LENGTH_SHORT).show();
+    }
+    private void updateTokens(){
+        tokenString ="Your tokens to cheat: "+ tokeny;
+        if (tokeny == 0){
+            mTokenTextView.setTextColor(Color.RED);
+        }else {
+            mTokenTextView.setTextColor(Color.GREEN);
+        }
+        mTokenTextView.setText(tokenString);
     }
 }
