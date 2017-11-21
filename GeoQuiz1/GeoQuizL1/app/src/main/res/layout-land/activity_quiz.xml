@@ -78,6 +78,13 @@ This means, in which direction it's contents should align.
         android:layout_gravity="bottom|center"
         android:text="@string/cheat_button_label"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_list"
+        android:text="all questions"/>
+
+
     <TextView
         android:id="@+id/Level"
         android:layout_width="match_parent"

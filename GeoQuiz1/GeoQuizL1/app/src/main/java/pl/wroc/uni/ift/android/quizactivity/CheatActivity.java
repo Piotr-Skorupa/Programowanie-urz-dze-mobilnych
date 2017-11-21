@@ -62,7 +62,7 @@ public class CheatActivity extends AppCompatActivity {
             mButtonShow.setVisibility(View.GONE);
         }
 
-        setAnswerShown(false);
+        setAnswerShown(isCheating);
     }
 
 
@@ -94,6 +94,7 @@ public class CheatActivity extends AppCompatActivity {
         // Save UI state changes to the savedInstanceState.
         // This bundle will be passed to onCreate if the process is
         // killed and restarted.
+
         savedInstanceState.putBoolean("wasShown", isCheating);
         savedInstanceState.putString("text", mTextViewAnswer.getText().toString());
 

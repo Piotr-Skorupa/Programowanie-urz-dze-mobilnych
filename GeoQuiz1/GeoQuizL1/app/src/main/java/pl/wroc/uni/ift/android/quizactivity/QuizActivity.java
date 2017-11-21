@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -34,13 +35,12 @@ public class QuizActivity extends AppCompatActivity {
     private TextView mTokenTextView;
 
     private Button mCheatButton;
+    private Button mAllQuestionsButton;
 
-    private Question[] mQuestionsBank = new Question[]{
-            new Question(R.string.question_stolica_polski, true),
-            new Question(R.string.question_stolica_dolnego_slaska, false),
-            new Question(R.string.question_sniezka, true),
-            new Question(R.string.question_wisla, true)
-    };
+
+    //próba singletona
+    private QuestionBank mQuestionsBank = QuestionBank.getInstance();
+
 
     private int mCurrentIndex = 0;
     private boolean mIsCheater = false;
@@ -76,9 +76,11 @@ public class QuizActivity extends AppCompatActivity {
             // since our Question is implementing this interface (Parcelable)
             // we are allowed to cast the Parcelable[] to desired type which
             // is the Question[] here.
-            mQuestionsBank = (Question []) savedInstanceState.getParcelableArray(KEY_QUESTIONS);
+
+            // mQuestionsBank = savedInstanceState.getParcelable(KEY_QUESTIONS);
+
             // sanity check
-            if (mQuestionsBank == null)
+            if (mQuestionsBank.getArray() == null)
             {
                 Log.e(TAG, "Question bank array was not correctly returned from Bundle");
 
@@ -103,7 +105,7 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                boolean currentAnswer = mQuestionsBank[mCurrentIndex].isAnswerTrue();
+                boolean currentAnswer = mQuestionsBank.getQuestion(mCurrentIndex).isAnswerTrue();
                 Intent intent = CheatActivity.newIntent(QuizActivity.this, currentAnswer);
                 intent.putExtra("tokens", tokeny);
 //                Intent intent = new Intent(QuizActivity.this, CheatActivity.class);
@@ -114,12 +116,23 @@ public class QuizActivity extends AppCompatActivity {
             }
         });
 
+        mAllQuestionsButton = (Button) findViewById(R.id.button_list);
+        mAllQuestionsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(QuizActivity.this, QuestionListActivity.class);
+
+                startActivity(intent);
+
+            }
+        });
+
 
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
         mQuestionTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mCurrentIndex = (mCurrentIndex + 1) % mQuestionsBank.length;
+                mCurrentIndex = (mCurrentIndex + 1) % mQuestionsBank.size();
                 updateQuestion();
             }
         });
@@ -146,7 +159,7 @@ public class QuizActivity extends AppCompatActivity {
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mCurrentIndex = (mCurrentIndex + 1) % mQuestionsBank.length;
+                mCurrentIndex = (mCurrentIndex + 1) % mQuestionsBank.size();
                 updateQuestion();
             }
         });
@@ -156,7 +169,7 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (mCurrentIndex == 0)
-                    mCurrentIndex = mQuestionsBank.length - 1;
+                    mCurrentIndex = mQuestionsBank.size() - 1;
                 else
                     mCurrentIndex = (mCurrentIndex - 1);
                 updateQuestion();
@@ -203,11 +216,12 @@ public class QuizActivity extends AppCompatActivity {
         savedInstanceState.putInt("tokens", tokeny);
         // because Question is implementing Parcelable interface
         // we are able to store array in Bundle
-        savedInstanceState.putParcelableArray(KEY_QUESTIONS, mQuestionsBank);
+
+        // savedInstanceState.putParcelable(KEY_QUESTIONS, (Parcelable) mQuestionsBank);
     }
 
     private void updateQuestion() {
-        int question = mQuestionsBank[mCurrentIndex].getTextResId();
+        int question = mQuestionsBank.getQuestion(mCurrentIndex).getTextResId();
         mQuestionTextView.setText(question);
         if (odpowiedziane >= 4){
             if(mIsCheater==false){
@@ -219,7 +233,7 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void checkAnswer(boolean userPressedTrue) {
-        boolean answerIsTrue = mQuestionsBank[mCurrentIndex].isAnswerTrue();
+        boolean answerIsTrue = mQuestionsBank.getQuestion(mCurrentIndex).isAnswerTrue();
 
         int toastMessageId;
 
